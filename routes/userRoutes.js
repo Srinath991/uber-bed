@@ -1,6 +1,6 @@
 import express from 'express'
 import { body } from "express-validator";
-import { registerUser } from '../controllers/userController.js';
+import { registerUser,loginUser } from '../controllers/userController.js';
 
 const router = express.Router()
 router.post('/register',  [
@@ -25,5 +25,10 @@ router.post('/register',  [
         .matches(/[@$!%*?&]/)
         .withMessage("Password must contain at least one special character (@$!%*?&)"),
 ],registerUser)
+
+router.post('/login',[
+    body('email').isEmail().withMessage('invalid email'),
+    body('password').isLength({min:6}).withMessage('incorrect password')
+],loginUser)
 
 export default router
