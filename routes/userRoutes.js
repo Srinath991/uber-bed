@@ -1,9 +1,9 @@
 import express from 'express'
 import { body } from "express-validator";
-import { registerUser,loginUser } from '../controllers/userController.js';
-
+import { registerUser, loginUser, getUserProfile, logoutUser } from '../controllers/userController.js';
+import { authUser } from '../middlewares/authMiddleware.js';
 const router = express.Router()
-router.post('/register',  [
+router.post('/register', [
     body("fullname.firstname")
         .isLength({ min: 3 })
         .withMessage("First name must be at least 3 characters long"),
@@ -24,11 +24,14 @@ router.post('/register',  [
         .withMessage("Password must contain at least one number")
         .matches(/[@$!%*?&]/)
         .withMessage("Password must contain at least one special character (@$!%*?&)"),
-],registerUser)
+], registerUser)
 
-router.post('/login',[
+router.post('/login', [
     body('email').isEmail().withMessage('invalid email'),
-    body('password').isLength({min:6}).withMessage('incorrect password')
-],loginUser)
+    body('password').isLength({ min: 6 }).withMessage('incorrect password')
+], loginUser)
+
+router.get('/profile', authUser, getUserProfile)
+router.post('/logout',authUser,logoutUser)
 
 export default router

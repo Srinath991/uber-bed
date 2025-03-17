@@ -37,7 +37,7 @@ userSchema.statics.hashPassword = async function (password) {
 
 // 🔹 Instance method to generate JWT token
 userSchema.methods.generateAuthToken = function () {
-    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET);
+    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
 };
 
 // 🔹 Instance method to compare passwords

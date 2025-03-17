@@ -1,7 +1,7 @@
 import UserModel from "../models/UserModel.js"
 import { createUser } from "../services/userService.js"
 import { validationResult } from "express-validator"
-
+import blackListTokenModel from "../models/blackListTokenModel.js";
 
 export const registerUser = async (req, res, next) => {
 
@@ -40,14 +40,26 @@ export const loginUser = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty())
         return res.status(400).json({ error: errors.array() });
-    const {email,password}=req.body
-    const user= await UserModel.findOne({email}).select('+password')
-    if(!user)
-        res.status(401).json({message:'invalid user or password'})
-    const ismatch=user.comparePassword(password)
-    if(!ismatch)
-        res.status(401).json({message:'invalid user or password'})
-    const token=user.generateAuthToken()
-    res.status(200).json({token,user})
+    const { email, password } = req.body
+    const user = await UserModel.findOne({ email }).select('+password')
+    if (!user)
+        res.status(401).json({ message: 'invalid user or password' })
+    const ismatch = user.comparePassword(password)
+    if (!ismatch)
+        res.status(401).json({ message: 'invalid user or password' })
+    const token = user.generateAuthToken()
+    res.cookie('token', token)
+    res.status(200).json({ token, user })
 
+}
+
+export const getUserProfile = async (req, res) => {
+    res.json(req.user)
+}
+
+export const logoutUser = async (req,res) => {
+    const token = req.cookies.token;
+    res.clearCookie('token')
+    await blackListTokenModel.create({token})
+    res.status(200).json({'message':'logged out'})
 }
