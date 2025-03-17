@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import connectDB from "./config/db.js"
 import userRouter from "./routes/userRoutes.js"
 import cookieParser from "cookie-parser"
+import CaptainRouter from "./routes/captainRoutes.js"
 config()
 
 const PORT = process.env.PORT | 3000
@@ -17,6 +18,7 @@ app.use(morgan("dev"));
 app.use(express.json())
 app.use(cookieParser())
 app.use('/user',userRouter)
+app.use('/captain',CaptainRouter)
 
 
 
