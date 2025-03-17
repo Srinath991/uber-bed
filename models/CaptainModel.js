@@ -18,54 +18,60 @@ const captionSchema = new Schema({
         type: String,
         required: true,
         unique: true,
-        lowercase:true,
+        lowercase: true,
         match: [/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Invalid email format"]
     },
     password: {
         type: String,
         required: true,
-        select: false // This prevents the password from being returned in queries
+        select: false // Prevents password from being returned in queries
     },
     socketId: {
         type: String
     },
-    status:{
-        type:String,
-        enum:['active','inactive'],
-        default:'inactive'
+    status: {
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'inactive'
     },
-    vehicle:{
-        color:{
-            type:String,
-            required:true,
-            minlength: [3, "The color must be at least 3 character long"]
+    vehicle: {
+        color: {
+            type: String,
+            required: true,
+            minlength: [3, "The color must be at least 3 characters long"]
         },
-        plate:{
-            type:String,
-            required:true,
-            minlength: [3, "The plate must be at least 3 character long"]
-
+        plate: {
+            type: String,
+            required: true,
+            minlength: [3, "The plate must be at least 3 characters long"]
         },
-        capacity:{
-            type:Number,
-            required:true,
-            min:[1,'capacity must be atleast 1']
+        capacity: {
+            type: Number,
+            required: true,
+            min: [1, "Capacity must be at least 1"]
         },
-        vehicleType:{
-            type:String,
-            require:true,
-            enum:['car','motorcycle','auto']
+        vehicleType: {
+            type: String,
+            required: true, // Fixed typo from "require" to "required"
+            enum: ['car', 'motorcycle', 'auto']
         },
-        location:{
-            lat:{
-                type:Number,
+        location: {
+            lat: {
+                type: Number,
             },
-            lng:{
-                type:Number,
+            lng: {
+                type: Number,
             }
         }
     }
-})
+});
+
+// 🔹 Hash password before saving
+captionSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) return next(); // Only hash if password is modified
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+});
 
 // 🔹 Static method for hashing passwords
 captionSchema.statics.hashPassword = async function (password) {
@@ -74,16 +80,13 @@ captionSchema.statics.hashPassword = async function (password) {
 
 // 🔹 Instance method to generate JWT token
 captionSchema.methods.generateAuthToken = function () {
-    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
 };
 
 // 🔹 Instance method to compare passwords
 captionSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+    const user = await model('Captain').findById(this._id).select('+password'); // Ensure password is fetched
+    return bcrypt.compare(password, user.password);
 };
 
-
-
-
-
-export default model('Captain',captionSchema)
+export default model("Captain", captionSchema);

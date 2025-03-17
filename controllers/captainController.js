@@ -59,11 +59,11 @@ export const logincaptain = async (req, res, next) => {
 
 }
 
-export const getUserProfile = async (req, res) => {
-    res.json(req.user)
+export const getCaptaionProfile = async (req, res) => {
+    res.json(req.captain)
 }
 
-export const logoutUser = async (req,res) => {
+export const logoutCaptain = async (req,res) => {
     const token = req.cookies.token;
     res.clearCookie('token')
     await blackListTokenModel.create({token})
