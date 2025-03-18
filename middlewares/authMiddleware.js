@@ -10,7 +10,6 @@ export const authUser = async (req, res, next) => {
         let token = req.cookies.token;
         if (!token) {
             const authHeader = req.headers.authorization;
-            console.log(authHeader)
             if (!authHeader || !authHeader.startsWith("Bearer ")) {
                 return res.status(403).json({ message: "Unauthorized" });
             }
