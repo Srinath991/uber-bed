@@ -6,10 +6,10 @@ import { authCaptain } from '../middlewares/authMiddleware.js';
 const router=Router();
 
 router.post('/register', [
-    body("fullname.firstname")
+    body("fullName.firstName")
         .isLength({ min: 3 })
         .withMessage("First name must be at least 3 characters long"),
-    body("fullname.lastname")
+    body("fullName.lastName")
         .isLength({ min: 1 })
         .withMessage("Last name must be at least 1 character long"),
     body("email")

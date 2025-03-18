@@ -3,13 +3,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const captionSchema = new Schema({
-    fullname: {
-        firstname: {
+    fullName: {
+        firstName: {
             type: String,
             required: true,
             minlength: [3, "The firstname must be at least 3 characters long"]
         },
-        lastname: {
+        lasName: {
             type: String,
             minlength: [1, "The lastname must be at least 1 character long"]
         }

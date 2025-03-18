@@ -1,15 +1,15 @@
 import UserModel from "../models/UserModel.js";
 
-export const createUser = async ({ firstname, lastname, email, password }) => {
-    if (!firstname || !email || !password) {
+export const createUser = async ({ firstName, lastName, email, password }) => {
+    if (!firstName || !email || !password) {
         throw new Error("All fields are required");
     }
 
     // Create the user and ensure it's saved as a full Mongoose document
     const user = new UserModel({
-        fullname: {
-            firstname,
-            lastname
+        fullName: {
+            firstName,
+            lastName
         },
         email,
         password
