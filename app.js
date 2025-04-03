@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoutes.js"
 import cookieParser from "cookie-parser"
 import captainRouter from "./routes/captainRoutes.js"
 import mapsRouter from "./routes/mapsRoutes.js"
+import Riderouter from "./routes/rideRoutes.js"
 config()
 
 const PORT = process.env.PORT | 3000
@@ -21,7 +22,7 @@ app.use(cookieParser())
 app.use('/user', userRouter)
 app.use('/captain', captainRouter)
 app.use('/maps', mapsRouter)
-
+app.use('/ride',Riderouter)
 
 
 app.listen(PORT, () => {
