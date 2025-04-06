@@ -20,7 +20,7 @@ router.get('/distance-time',
 )
 router.get('/suggestions',
     [query('input').isString().isLength({ min: 3 })],
-    // authUser,
+    authUser,
     getAutoCompleteSuggestions
 
 )

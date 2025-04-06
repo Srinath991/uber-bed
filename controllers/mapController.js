@@ -62,7 +62,9 @@ export const getAutoCompleteSuggestions = async (req, res, next) => {
     const suggestions = await fetchAutoCompleteSuggestions(input);
     res.status(200).json(suggestions);
   } catch (error) {
-    res.status(200).json(suggestions);
+    return res.status(500).json({
+      error: error.message,
+    });
   }
 };
 

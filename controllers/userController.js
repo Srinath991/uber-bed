@@ -69,7 +69,7 @@ export const loginUser = async (req, res, next) => {
         res.status(200).json({ token, user });
     } catch (err) {
         // Handle unexpected errors
-        console.error(err.message);
+       
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
