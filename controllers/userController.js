@@ -33,45 +33,43 @@ export const registerUser = async (req, res, next) => {
 };
 
 export const loginUser = async (req, res, next) => {
-    try {
-        // Validate input errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ error: errors.array() });
-        }
-
-        // Extract email and password from request body
-        const { email, password } = req.body;
-
-        // Find the user by email, including the password field
-        const user = await UserModel.findOne({ email }).select('+password');
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        // Compare the provided password with the hashed password in the database
-        const isMatch = await user.comparePassword(password); 
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        // Generate a token for the user
-        const token = user.generateAuthToken();
-
-        // Set the token in a cookie
-        res.cookie('token', token, {
-            httpOnly: true, // Prevent client-side JavaScript access
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict', // Prevent CSRF attacks
-        });
-
-        // Send the token and user information
-        res.status(200).json({ token, user });
-    } catch (err) {
-        // Handle unexpected errors
-       
-        res.status(500).json({ message: 'Internal Server Error' });
+  try {
+    // 🔹 Validate input
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array() });
     }
+
+    const { email, password } = req.body;
+
+    // 🔹 Find user and include password
+    const user = await UserModel.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 🔹 Compare password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 🔹 Generate token (make sure this method exists on schema)
+    const token = user.generateAuthToken();
+
+    // 🔹 Set token in cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    // 🔹 Respond with token and user info (you may want to exclude password)
+    const { password: _, ...userInfo } = user.toObject(); // exclude password
+    res.status(200).json({ token, user: userInfo });
+  } catch (err) {
+    next(err); 
+  }
 };
 
 

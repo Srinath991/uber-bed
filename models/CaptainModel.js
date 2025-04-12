@@ -2,15 +2,14 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-// Define schema
-const captionSchema = new Schema({
+const captainSchema = new Schema({
   fullName: {
     firstName: {
       type: String,
       required: true,
       minlength: [3, "The firstname must be at least 3 characters long"]
     },
-    lasName: {
+    lastName: { // ✅ fixed typo
       type: String,
       minlength: [1, "The lastname must be at least 1 character long"]
     }
@@ -27,9 +26,7 @@ const captionSchema = new Schema({
     required: true,
     select: false
   },
-  socketId: {
-    type: String
-  },
+  socketId: String,
   status: {
     type: String,
     enum: ['active', 'inactive'],
@@ -61,8 +58,8 @@ const captionSchema = new Schema({
     type: {
       type: String,
       enum: ['Point'],
-      required: true,
-      default: 'Point'
+      default: 'Point',
+      required: true
     },
     coordinates: {
       type: [Number], // [lng, lat]
@@ -71,30 +68,19 @@ const captionSchema = new Schema({
   }
 }, { timestamps: true });
 
-// 🔹 2dsphere index for geo queries
-captionSchema.index({ location: '2dsphere' });
-
-// 🔹 Hash password before saving
-captionSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
-
-// 🔹 Static method to hash a password
-captionSchema.statics.hashPassword = async function (password) {
-  return await bcrypt.hash(password, 10);
-};
+// 🔹 Index for location-based queries
+captainSchema.index({ location: '2dsphere' });
 
 // 🔹 Generate JWT token
-captionSchema.methods.generateAuthToken = function () {
-  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+captainSchema.methods.generateAuthToken = function () {
+  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+    expiresIn: "24h"
+  });
 };
 
 // 🔹 Compare password
-captionSchema.methods.comparePassword = async function (password) {
-  const user = await model('Captain').findById(this._id).select('+password');
-  return bcrypt.compare(password, user.password);
+captainSchema.methods.comparePassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
 };
 
-export default model("Captain", captionSchema);
+export default model("Captain", captainSchema);

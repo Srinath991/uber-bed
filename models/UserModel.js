@@ -2,75 +2,75 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const userSchema = new mongoose.Schema({
-  fullName: {
-    firstName: {
-      type: String,
-      required: true,
-      minlength: [3, "The firstname must be at least 3 characters long"]
+const userSchema = new mongoose.Schema(
+  {
+    fullName: {
+      firstName: {
+        type: String,
+        required: [true, "First name is required"],
+        minlength: [3, "The first name must be at least 3 characters long"],
+        trim: true,
+      },
+      lastName: {
+        type: String,
+        minlength: [1, "The last name must be at least 1 character long"],
+        trim: true,
+      },
     },
-    lastName: {
+    email: {
       type: String,
-      minlength: [1, "The lastname must be at least 1 character long"]
-    }
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    match: [
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Invalid email format"
-    ]
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false
-  },
-  socketId: {
-    type: String
-  },
-  location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point"
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        "Invalid email format",
+      ],
     },
-    coordinates: {
-      type: [Number], // [lng, lat]
-      default: [0, 0]
-    }
-  }
-}, { timestamps: true });
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false, // prevents password from being returned in queries
+    },
+    socketId: {
+      type: String,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        default: [0, 0],
+      },
+    },
+  },
+  { timestamps: true }
+);
 
-// Index location field for geospatial queries
+// Geospatial index for location queries
 userSchema.index({ location: "2dsphere" });
 
-// 🔹 Hash password before saving
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
 
-// 🔹 Static method to hash passwords
-userSchema.statics.hashPassword = async function (password) {
-  return await bcrypt.hash(password, 10);
+userSchema.statics.hashPassword = async function (plainPassword) {
+  return await bcrypt.hash(plainPassword, 10);
 };
 
-// 🔹 Generate JWT
+
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: "24h"
+    expiresIn: "1d",
   });
 };
 
-// 🔹 Compare Password
-userSchema.methods.comparePassword = async function (password) {
-  const user = await mongoose.model("User").findById(this._id).select("+password");
-  return bcrypt.compare(password, user.password);
+
+userSchema.methods.comparePassword = async function (inputPassword) {
+  return await bcrypt.compare(inputPassword, this.password);
 };
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+export default User;
