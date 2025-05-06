@@ -22,8 +22,8 @@ Before you begin, ensure you have the following installed:
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd backend
+git clone https://github.com/Srinath991/uber-bed
+cd uber-bed
 ```
 
 2. Install dependencies:
@@ -96,8 +96,9 @@ This project is licensed under the MIT License
 I am srinath v (AI and Full stack Engineer)
 
 Email: srinathvsrinathv863@gmail.com
-Project Link: 
-Backend :[https://github.com/Srinath991/uber-bed](https://github.com/Srinath991/uber-bed)
 
+Project Link:
+
+Backend :[https://github.com/Srinath991/uber-bed](https://github.com/Srinath991/uber-bed)
 Frontend :[https://github.com/Srinath991/uber-fed](https://github.com/Srinath991/uber-fed)
 
